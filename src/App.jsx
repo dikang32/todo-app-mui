@@ -53,8 +53,26 @@ function App() {
     setTaskList(newTaskList);
   };
 
-  
-  
+  const [filter, setFilter] = useState("all");
+
+  const handleDelete = (x) => {
+    const newArray = taskList.filter((task, index) => index !== x);
+    setTaskList(newArray);
+  };
+
+  const toggleStatus = (x) => {
+    const newTaskList = taskList.map((task, index) => {
+      if (x === index) {
+        return {
+          ...task,
+          isDone: !task.isDone,
+        };
+      } else {
+        return task;
+      }
+    });
+    setTaskList(newTaskList);
+  };
   return (
     <>
       <Box
@@ -79,7 +97,9 @@ function App() {
               </Typography>
               <FormControl>
                 <RadioGroup
+                  onChange={(e) => setFilter(e.target.value)}
                   aria-labelledby="demo-radio-buttons-group-label"
+                  defaultValue={"all"}
                   name="radio-buttons-group"
                   sx={{
                     display: "flex",
@@ -114,32 +134,50 @@ function App() {
                 Your Tasks
               </Typography>
               <Stack direction={"column"}>
-                {taskList.map((task, index) => (
-                  <Stack
-                    direction={"row"}
-                    gap={1}
-                    alignItems={"center"}
-                    key={index}
-                  >
-                    <Checkbox checked={task.isDone} />
-                    <Typography
-                      variant="body"
-                      flex={1}
-                      sx={{
-                        textDecoration: task.isDone ? "line-through" : "none",
-                      }}
+                {taskList.map((task, index) =>
+                  task.priority === filter || filter === "all" ? (
+                    <Stack
+                      direction={"row"}
+                      gap={1}
+                      alignItems={"center"}
+                      key={index}
                     >
-                      {task.title}
-                    </Typography>
-                    <Chip
-                      label={task.priority}
-                      color={getColor(task.priority)}
-                    />
-                    <IconButton aria-label="delete" size="large">
-                      <DeleteIcon fontSize="inherit" />
-                    </IconButton>
-                  </Stack>
-                ))}
+                      <Checkbox
+                        checked={task.isDone}
+                        onChange={() => toggleStatus(index)}
+                      />
+                      <Typography
+                        variant="body"
+                        flex={1}
+                        sx={{
+                          textDecoration: task.isDone ? "line-through" : "none",
+                        }}
+                      >
+                        {task.title}
+                      </Typography>
+                      <Chip
+                        label={task.priority}
+                        color={getColor(task.priority)}
+                      />
+                      <IconButton
+                        aria-label="delete"
+                        size="large"
+                        onClick={() => handleDelete(index)}
+                      >
+                        <DeleteIcon fontSize="inherit" />
+                      </IconButton>
+                    </Stack>
+                  ) : (
+                    <></>
+                  )
+                )}
+                {taskList.filter(
+                  (task, index) => task.priority === filter || filter === "all"
+                ).length === 0 ? (
+                  <Typography variant="h8">Empty</Typography>
+                ) : (
+                  <></>
+                )}
               </Stack>
             </Container>
             <Divider sx={{ marginY: 2 }}></Divider>
