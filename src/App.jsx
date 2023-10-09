@@ -20,6 +20,9 @@ import { Box, Container, Stack } from "@mui/system";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getColor } from "./assets/utils/color";
 import { useState } from "react";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function App() {
   const [task, setTask] = useState({
     id: "",
@@ -48,9 +51,24 @@ function App() {
     },
   ]);
   const handleSubmit = () => {
-    console.log(task);
-    const newTaskList = [...taskList, task];
-    setTaskList(newTaskList);
+    if (task.title.trim() === "") {
+      setTask({
+        ...task,
+        error: true,
+      });
+      toast.error("Unsuccessfully")
+    } else {
+      const newTaskList = [...taskList, task];
+      setTaskList(newTaskList);
+      setTask({
+        id: "",
+        title: "",
+        priority: "normal",
+        isDone: false,
+        error: false,
+      });
+      toast.success("Successfully")
+    }
   };
 
   const [filter, setFilter] = useState("all");
@@ -58,6 +76,7 @@ function App() {
   const handleDelete = (x) => {
     const newArray = taskList.filter((task, index) => index !== x);
     setTaskList(newArray);
+    toast.success("Successfully")
   };
 
   const toggleStatus = (x) => {
@@ -75,6 +94,18 @@ function App() {
   };
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Box
         sx={{
           minWidth: "100vw",
@@ -187,6 +218,7 @@ function App() {
               </Typography>
               <Stack direction={"row"} gap={2}>
                 <TextField
+                  error={task.error}
                   id="outlined-basic"
                   label="Title"
                   variant="outlined"
@@ -195,6 +227,7 @@ function App() {
                     setTask({
                       ...task,
                       title: e.target.value,
+                      error: false,
                     })
                   }
                 />
