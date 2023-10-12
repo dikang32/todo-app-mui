@@ -26,7 +26,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { getColor } from "./assets/utils/color";
 import { useState } from "react";
-
+import { v4 as uuidv4 } from "uuid";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 function App() {
@@ -38,19 +38,19 @@ function App() {
   });
   const [taskList, setTaskList] = useState([
     {
-      id: 1,
+      id: uuidv4(),
       title: "Ăn Cơm",
       priority: "high",
       isDone: false,
     },
     {
-      id: 2,
+      id: uuidv4(),
       title: "Nấu cơm",
       priority: "normal",
       isDone: true,
     },
     {
-      id: 3,
+      id: uuidv4(),
       title: "Rửa chén",
       priority: "low",
       isDone: false,
@@ -63,7 +63,7 @@ function App() {
       toast.error("Unsuccessfully");
       return;
     }
-    setTaskList([...taskList, task]);
+    setTaskList([...taskList, { ...task, id: uuidv4() }]);
     setTask({
       id: "",
       title: "",
@@ -103,10 +103,22 @@ function App() {
     priority: "normal",
     isDone: false,
   });
-  const handleEditClick = (task)=>{
-    setOpen(true)
-    setEditedTask(task)
-  }
+  const handleEditClick = (task) => {
+    setOpen(true);
+    setEditedTask(task);
+  };
+  const handleUpdateTask = () => {
+    const newTaskList = taskList.map((task, index) => {
+      if (editedTask.id === task.id) {
+        return editedTask;
+      } else {
+        return task;
+      }
+    });
+    setTaskList(newTaskList);
+    setOpen(false);
+  };
+
   return (
     <>
       <ToastContainer
@@ -121,7 +133,7 @@ function App() {
         pauseOnHover
         theme="colored"
       />
-      <Dialog maxWidth={'lg'} open={open} onClick={()=>setOpen(false)}>
+      <Dialog maxWidth={"lg"} open={open} onClose={() => setOpen(false)}>
         <DialogTitle>Edit</DialogTitle>
         <DialogContent>
           <DialogContentText>Edit your task</DialogContentText>
@@ -164,8 +176,8 @@ function App() {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={()=>setOpen(false)}>Cancel</Button>
-          <Button onClick={()=>setOpen(false)}>Submit</Button>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={handleUpdateTask}>Submit</Button>
         </DialogActions>
       </Dialog>
       <Box
@@ -255,7 +267,7 @@ function App() {
                       <IconButton
                         aria-label="edit"
                         size="large"
-                        onClick={()=>handleEditClick(task)}
+                        onClick={() => handleEditClick(task)}
                       >
                         <EditIcon fontSize="inherit" />
                       </IconButton>
@@ -308,7 +320,7 @@ function App() {
                     <Select
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
-                      defaultValue={"normal"}
+                      defaultValue={task.priority}
                       label="Priority"
                       onChange={(e) =>
                         setTask({
