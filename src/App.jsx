@@ -4,6 +4,11 @@ import {
   CardContent,
   Checkbox,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   FormControl,
   FormControlLabel,
@@ -18,6 +23,7 @@ import {
 } from "@mui/material";
 import { Box, Container, Stack } from "@mui/system";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import { getColor } from "./assets/utils/color";
 import { useState } from "react";
 
@@ -50,25 +56,22 @@ function App() {
       isDone: false,
     },
   ]);
+  const [isValidate, setIsValidate] = useState(false);
   const handleSubmit = () => {
     if (task.title.trim() === "") {
-      setTask({
-        ...task,
-        error: true,
-      });
-      toast.error("Unsuccessfully")
-    } else {
-      const newTaskList = [...taskList, task];
-      setTaskList(newTaskList);
-      setTask({
-        id: "",
-        title: "",
-        priority: "normal",
-        isDone: false,
-        error: false,
-      });
-      toast.success("Successfully")
+      setIsValidate(true);
+      toast.error("Unsuccessfully");
+      return;
     }
+    setTaskList([...taskList, task]);
+    setTask({
+      id: "",
+      title: "",
+      priority: "normal",
+      isDone: false,
+    });
+    toast.success("Successfully");
+    setIsValidate(false);
   };
 
   const [filter, setFilter] = useState("all");
@@ -76,7 +79,7 @@ function App() {
   const handleDelete = (x) => {
     const newArray = taskList.filter((task, index) => index !== x);
     setTaskList(newArray);
-    toast.success("Successfully")
+    toast.success("Successfully");
   };
 
   const toggleStatus = (x) => {
@@ -92,6 +95,18 @@ function App() {
     });
     setTaskList(newTaskList);
   };
+
+  const [open, setOpen] = useState(false);
+  const [editedTask, setEditedTask] = useState({
+    id: "",
+    title: "",
+    priority: "normal",
+    isDone: false,
+  });
+  const handleEditClick = (task)=>{
+    setOpen(true)
+    setEditedTask(task)
+  }
   return (
     <>
       <ToastContainer
@@ -106,6 +121,53 @@ function App() {
         pauseOnHover
         theme="colored"
       />
+      <Dialog maxWidth={'lg'} open={open} onClick={()=>setOpen(false)}>
+        <DialogTitle>Edit</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Edit your task</DialogContentText>
+          <Stack direction={"row"} gap={2} width={600} marginTop={2}>
+            <TextField
+              error={isValidate && editedTask.title.trim() === ""}
+              id="outlined-basic"
+              label="Title"
+              variant="outlined"
+              value={editedTask.title}
+              sx={{ flex: 3 }}
+              onChange={(e) =>
+                setEditedTask({
+                  ...editedTask,
+                  title: e.target.value,
+                })
+              }
+            />
+            <Box sx={{ flex: 1 }}>
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">Priority</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  defaultValue={editedTask.priority}
+                  label="Priority"
+                  onChange={(e) =>
+                    setEditedTask({
+                      ...editedTask,
+                      priority: e.target.value,
+                    })
+                  }
+                >
+                  <MenuItem value={"high"}>High</MenuItem>
+                  <MenuItem value={"normal"}>Normal</MenuItem>
+                  <MenuItem value={"low"}>Low</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={()=>setOpen(false)}>Cancel</Button>
+          <Button onClick={()=>setOpen(false)}>Submit</Button>
+        </DialogActions>
+      </Dialog>
       <Box
         sx={{
           minWidth: "100vw",
@@ -191,6 +253,13 @@ function App() {
                         color={getColor(task.priority)}
                       />
                       <IconButton
+                        aria-label="edit"
+                        size="large"
+                        onClick={()=>handleEditClick(task)}
+                      >
+                        <EditIcon fontSize="inherit" />
+                      </IconButton>
+                      <IconButton
                         aria-label="delete"
                         size="large"
                         onClick={() => handleDelete(index)}
@@ -218,16 +287,16 @@ function App() {
               </Typography>
               <Stack direction={"row"} gap={2}>
                 <TextField
-                  error={task.error}
+                  error={isValidate && task.title.trim() === ""}
                   id="outlined-basic"
                   label="Title"
                   variant="outlined"
+                  value={task.title}
                   sx={{ flex: 3 }}
                   onChange={(e) =>
                     setTask({
                       ...task,
                       title: e.target.value,
-                      error: false,
                     })
                   }
                 />
