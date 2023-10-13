@@ -12,6 +12,9 @@ import {
   Divider,
   FormControl,
   FormControlLabel,
+  FormGroup,
+  FormHelperText,
+  FormLabel,
   IconButton,
   InputLabel,
   MenuItem,
@@ -74,7 +77,21 @@ function App() {
     setIsValidate(false);
   };
 
-  const [filter, setFilter] = useState("all");
+  // Filter by RadioGroup
+  // const [filter,setFilter] = useState("all")
+
+  // Filter by Checkbox
+  const [filter, setFilter] = useState({
+    high: true,
+    normal: true,
+    low: true,
+  });
+  const handleFilter = (event) => {
+    setFilter({
+      ...filter,
+      [event.target.name]: event.target.checked,
+    });
+  };
 
   const handleDelete = (x) => {
     const newArray = taskList.filter((task, index) => index !== x);
@@ -200,7 +217,45 @@ function App() {
               <Typography variant="h6" marginTop={2} marginBottom={1}>
                 Filter by status
               </Typography>
-              <FormControl>
+
+              {/* Filter by Checkbox */}
+              <FormControl component="fieldset" variant="standard">
+                <FormGroup sx={{ display: "flex", flexDirection: "row" }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={filter.high}
+                        onChange={handleFilter}
+                        name="high"
+                      />
+                    }
+                    label="High"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={filter.normal}
+                        onChange={handleFilter}
+                        name="normal"
+                      />
+                    }
+                    label="Normal"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={filter.low}
+                        onChange={handleFilter}
+                        name="low"
+                      />
+                    }
+                    label="Low"
+                  />
+                </FormGroup>
+              </FormControl>
+
+              {/* Filter by RadioGroup */}
+              {/* <FormControl>
                 <RadioGroup
                   onChange={(e) => setFilter(e.target.value)}
                   aria-labelledby="demo-radio-buttons-group-label"
@@ -232,7 +287,7 @@ function App() {
                     label="Low"
                   />
                 </RadioGroup>
-              </FormControl>
+              </FormControl> */}
             </Container>
             <Container sx={{ height: 400 }}>
               <Typography variant="h6" marginTop={2} marginBottom={1}>
@@ -240,7 +295,7 @@ function App() {
               </Typography>
               <Stack direction={"column"}>
                 {taskList.map((task, index) =>
-                  task.priority === filter || filter === "all" ? (
+                  filter[task.priority] ? (
                     <Stack
                       direction={"row"}
                       gap={1}
@@ -284,7 +339,12 @@ function App() {
                   )
                 )}
                 {taskList.filter(
-                  (task, index) => task.priority === filter || filter === "all"
+                  (task, index) =>
+                    // Filter by Checkbox
+                    filter[task.priority]
+
+                  // Filter by RadioGroup
+                  // task.priority === filter || filter === "all"
                 ).length === 0 ? (
                   <Typography variant="h8">Empty</Typography>
                 ) : (
