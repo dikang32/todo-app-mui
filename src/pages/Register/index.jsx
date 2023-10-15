@@ -51,6 +51,7 @@ function Register() {
               Register
             </Button>
             <Typography variant="body" textAlign={"center"}>
+               {/* eslint-disable-next-line react/no-unescaped-entities */}
               Don't have an account?
             </Typography>
             <Link to={"/login"} style={{ width: "100%" }}>

@@ -138,18 +138,7 @@ import {
   
     return (
       <>
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-        />
+       
         <Dialog maxWidth={"lg"} open={open} onClose={() => setOpen(false)}>
           <DialogTitle>Edit</DialogTitle>
           <DialogContent>
